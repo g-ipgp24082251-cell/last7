@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOM BACA SUKU KATA KV+KV! - Pemulihan Khas</title>
+  <style>
+    :root {
+      --primary: #ff4757;
+      --secondary: #2ed573;
+      --accent: #ffa502;
+      --dark: #2f3542;
+      --sky: #70a1ff;
+      --purple: #a55eea;
+      --yellow: #f1c40f;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #74b9ff 0%, #81ecec 50%, #ffeaa7 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 900px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+      margin-bottom: 15px;
+      border: 4px solid var(--yellow);
+    }
+
+    .title-badge {
+      font-weight: 900;
+      font-size: 1.35rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+    }
+
+    .icon-btn {
+      background: #ffffff;
+      border: 3px solid var(--yellow);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+    }
+
+    .icon-btn:hover {
+      transform: scale(1.15) rotate(6deg);
+      border-color: var(--primary);
+    }
+
+    .screen {
+      display: none;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 35px;
+      padding: 25px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+      border: 6px solid var(--yellow);
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      animation: popScreen 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes popScreen {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .mascot-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 10px 0 15px 0;
+    }
+
+    .star-mascot {
+      width: 90px;
+      height: 90px;
+      background: var(--yellow);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: floatStar 3s ease-in-out infinite;
+      box-shadow: 0 10px 20px rgba(241, 196, 15, 0.4);
+    }
+
+    @keyframes floatStar {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    .image-card-container {
+      background: linear-gradient(135deg, #ffffff 0%, #f1f2f6 100%);
+      border: 5px solid var(--sky);
+      border-radius: 25px;
+      padding: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+      margin: 10px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .word-display-box {
+      background: #fff9e6;
+      border: 4px dashed var(--yellow);
+      border-radius: 20px;
+      padding: 12px 30px;
+      margin-top: 15px;
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--dark);
+    }
+
+    .syllable-given {
+      color: var(--sky);
+    }
+
+    .syllable-blank {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    .input-group {
+      width: 100%;
+      max-width: 380px;
+      margin: 10px 0;
+      text-align: left;
+    }
+
+    .input-group label {
+      font-weight: bold;
+      font-size: 1.1rem;
+      color: var(--dark);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 16px 22px;
+      font-size: 1.2rem;
+      border: 4px solid #cbd5e1;
+      border-radius: 20px;
+      outline: none;
+      transition: all 0.2s;
+      background: #fff;
+    }
+
+    .input-field:focus {
+      border-color: var(--secondary);
+      box-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+    }
+
+    .btn-main {
+      background: linear-gradient(180deg, #ff9f43 0%, var(--primary) 100%);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      font-size: 1.45rem;
+      font-weight: 900;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #c0392b, 0 12px 25px rgba(0,0,0,0.2);
+      transition: all 0.1s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .btn-main:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #c0392b, 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(180deg, #54a0ff 0%, #2e86de 100%);
+      box-shadow: 0 8px 0 #1e3799, 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .btn-green {
+      background: linear-gradient(180deg, #2ecc71 0%, #10ac84 100%);
+      box-shadow: 0 8px 0 #0e7460, 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .btn-purple {
+      background: linear-gradient(180deg, #a55eea 0%, #8854d0 100%);
+      box-shadow: 0 8px 0 #3b3b98, 0 12px 25px rgba(0,0,0,0.2);
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 480px;
+      margin: 15px 0;
+    }
+
+    .action-card {
+      background: #f8f9fa;
+      border: 4px solid #e9ecef;
+      border-radius: 22px;
+      padding: 14px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .action-card:hover {
+      background: #e3faf3;
+      border-color: var(--secondary);
+      transform: translateY(-5px);
+    }
+
+    .action-card .icon {
+      font-size: 2.2rem;
+    }
+
+    .action-card span {
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background: #e2e8f0;
+      height: 24px;
+      border-radius: 15px;
+      overflow: hidden;
+      margin: 10px 0;
+      border: 3px solid #cbd5e1;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #2ecc71, #10ac84);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .gems-counter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.3rem;
+      font-weight: 900;
+      color: #d35400;
+      background: #fff8e1;
+      padding: 6px 18px;
+      border-radius: 25px;
+      border: 3px solid #ffe082;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .mic-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: bold;
+      margin: 8px 0;
+      min-height: 45px;
+      padding: 8px 18px;
+      border-radius: 15px;
+      background: #f1f2f6;
+      font-size: 1.05rem;
+    }
+
+    .recording-dot {
+      width: 16px;
+      height: 16px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: inline-block;
+      animation: blink 0.8s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.2; transform: scale(0.8); }
+    }
+
+    .feedback-banner {
+      width: 100%;
+      padding: 12px;
+      border-radius: 16px;
+      margin: 8px 0;
+      font-weight: 900;
+      font-size: 1.2rem;
+      display: none;
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .feedback-correct {
+      background: #d4edda;
+      color: #155724;
+      border: 3px solid #c3e6cb;
+    }
+
+    .feedback-wrong {
+      background: #f8d7da;
+      color: #721c24;
+      border: 3px solid #f5c6cb;
+    }
+
+    .teacher-dashboard {
+      text-align: left;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #f8f9fa;
+      border-left: 6px solid var(--secondary);
+      padding: 15px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .stat-card h4 {
+      margin: 0;
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
+
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: var(--dark);
+      margin-top: 5px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: var(--dark);
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #dee2e6;
+      text-align: center;
+      background: #fff;
+    }
+
+    th {
+      background: #f1f3f5;
+      color: #495057;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 25px;
+      max-width: 620px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #modal-report, #modal-report * { visibility: visible; }
+      #modal-report { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div id="app-container">
+    
+    <header>
+      <div class="title-badge">
+        🔊 JOM BACA SUKU KATA KV+KV!
+      </div>
+      <div class="controls">
+        <button class="icon-btn" title="Dashboard Guru" onclick="showTeacherDashboard()">👨‍🏫</button>
+      </div>
+    </header>
+
+    <!-- 1. SKRIN UTAMA / DAFTAR -->
+    <div id="screen-welcome" class="screen active">
+      <div class="mascot-container">
+        <div class="star-mascot"></div>
+      </div>
+      
+      <h1 style="color: var(--primary); margin-bottom: 5px; font-size: 2.1rem;">JOM BACA SUKU KATA KV+KV!</h1>
+      <p style="font-size: 1.15rem; color: #576574; font-weight: bold; margin-top: 0;">
+        10 Perkataan: Baju, Bola, Paku, Yoyo, Susu, Lima, Lori, Gigi, Hoki, Gula
+      </p>
+
+      <div class="input-group">
+        <label for="student-name">👤 Nama Murid:</label>
+        <input type="text" id="student-name" class="input-field" placeholder="Masukkan nama murid..." autocomplete="off">
+      </div>
+
+      <div class="input-group">
+        <label for="student-class">🏫 Kelas:</label>
+        <input type="text" id="student-class" class="input-field" placeholder="Contoh: 1 Mawar / Pemulihan" autocomplete="off">
+      </div>
+
+      <div class="input-group">
+        <label for="session-date">📅 Tarikh Sesi:</label>
+        <input type="text" id="session-date" class="input-field" readonly style="background: #f1f2f6;">
+      </div>
+
+      <button class="btn-main" onclick="startAdventure()">
+        🚀 MULA LATIHAN
+      </button>
+    </div>
+
+    <!-- 2. SKRIN PERMAINAN -->
+    <div id="screen-game" class="screen">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: 5px;">
+        <div>
+          <span id="player-tag" style="font-weight: bold; color: var(--sky); font-size: 1.1rem;">👤 Murid</span>
+          <div style="font-size: 0.9rem; color: #8395a7;" id="question-count-tag">Soalan 1 daripada 10</div>
+        </div>
+        <div class="gems-counter">
+          ⭐ <span id="gem-count">0</span>
+        </div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="game-progress"></div>
+      </div>
+
+      <div style="background: #e3faf3; border: 3px dashed #4ecdc4; padding: 14px 18px; border-radius: 20px; margin-bottom: 10px; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        <p id="instruction-text" style="margin: 0; font-weight: bold; color: #006266; font-size: 1.15rem; text-align: left;">
+          Lihat gambar di bawah. Sila sebut suku kata yang betul untuk melengkapkan perkataan.
+        </p>
+        <button onclick="repeatInstruction()" style="background: var(--yellow); border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.3rem; cursor: pointer; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);" title="Dengar Semula Arahan">🔊</button>
+      </div>
+      <div id="attempt-badge" style="margin-bottom: 8px; font-size: 0.9rem; color: #d35400; font-weight: bold;">
+        Percubaan Ke-1 untuk soalan ini
+      </div>
+
+      <div class="image-card-container">
+        <div id="image-display" style="font-size: 6rem; line-height: 1.2;">👕</div>
+        <div class="word-display-box" id="word-pattern">
+          <span class="syllable-given">ba</span> + <span class="syllable-blank">_ _</span>
+        </div>
+      </div>
+
+      <div class="feedback-banner" id="feedback-banner"></div>
+
+      <div class="mic-status" id="mic-status-container">
+        <span id="mic-text" style="color: #576574;">Tekan <b>Rakam Suara</b> untuk sebut suku kata tempat kosong.</span>
+      </div>
+
+      <div class="action-grid">
+        <div class="action-card" id="btn-record" onclick="toggleRecording()">
+          <div class="icon">🎙️</div>
+          <span id="record-label">Rakam Suara</span>
+        </div>
+
+        <div class="action-card" id="btn-play-rec" onclick="playStudentAudio()" style="opacity: 0.5; pointer-events: none;">
+          <div class="icon">🎧</div>
+          <span>Dengar Semula</span>
+        </div>
+
+        <div class="action-card" id="btn-check" onclick="evaluateAnswer()" style="opacity: 0.5; pointer-events: none;">
+          <div class="icon">✨</div>
+          <span>Semak Jawapan</span>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; width: 100%;">
+        <button class="btn-main btn-purple" id="btn-retry" onclick="retryCurrentQuestion()" style="display: none; flex: 1; justify-content: center;">
+          🔄 CUBA LAGI
+        </button>
+        <button class="btn-main btn-green" id="btn-next" onclick="nextQuestion()" style="display: none; flex: 1; justify-content: center;">
+          SETERUSNYA ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- 3. SKRIN KEPUTUSAN / TAMAT -->
+    <div id="screen-result" class="screen">
+      <div style="font-size: 4.5rem;">🌟</div>
+      <h1 style="color: var(--primary); margin: 5px 0;">TAHNIAH, HEBAT MEMBACA!</h1>
+      <p id="result-greeting" style="font-size: 1.25rem; font-weight: bold; color: #576574;">
+        Kamu berjaya menyelesaikan 10 soalan membaca suku kata KV+KV!
+      </p>
+
+      <div style="background: #f8f9fa; border-radius: 25px; padding: 18px; width: 100%; margin: 15px 0; border: 3px solid #e9ecef;">
+        <div style="display: flex; justify-content: space-around; text-align: center;">
+          <div>
+            <div style="font-size: 0.95rem; color: #8395a7;">Jumlah Betul</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: var(--primary);" id="res-total">0/10</div>
+          </div>
+          <div>
+            <div style="font-size: 0.95rem; color: #8395a7;">Peratus Penguasaan</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: var(--secondary);" id="res-percent">0%</div>
+          </div>
+          <div>
+            <div style="font-size: 0.95rem; color: #8395a7;">Bintang</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: var(--yellow);" id="res-gems">⭐ 0</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
+        <button class="btn-main btn-purple" onclick="restartGame()">🔄 Main Semula</button>
+        <button class="btn-main btn-secondary" onclick="showTeacherDashboard()">📊 Laporan Guru</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL: DASHBOARD GURU -->
+  <div class="modal-overlay" id="modal-dashboard">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="margin: 0; color: var(--sky);">👨‍🏫 Dashboard Pentaksiran Guru</h2>
+        <button onclick="closeModal('modal-dashboard')" style="background:none; border:none; font-size:1.6rem; cursor:pointer;">❌</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h4>JUMLAH MURID</h4>
+          <div class="value" id="dash-total-students">0</div>
+        </div>
+        <div class="stat-card">
+          <h4>JUMLAH PERCUBAAN SESI</h4>
+          <div class="value" id="dash-total-attempts">0</div>
+        </div>
+        <div class="stat-card">
+          <h4>PURATA PENGUASAAN</h4>
+          <div class="value" id="dash-avg-mastery">0%</div>
+        </div>
+      </div>
+
+      <h3>📌 Rekod Pentaksiran Suku Kata KV+KV</h3>
+      <div style="margin-bottom: 12px; display: flex; gap: 10px;">
+        <input type="text" id="dash-search" placeholder="Cari nama murid..." class="input-field" style="padding: 10px 18px; font-size: 0.95rem;" onkeyup="renderTeacherTable()">
+      </div>
+
+      <div class="teacher-dashboard">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Kelas</th>
+              <th>Tarikh</th>
+              <th>Skor Total</th>
+              <th>Peratus</th>
+              <th>Tahap</th>
+              <th>Tindakan</th>
+            </tr>
+          </thead>
+          <tbody id="dash-table-body"></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 22px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <button class="btn-main btn-secondary" style="font-size: 0.95rem; padding: 12px 24px;" onclick="exportDataCSV()">📥 Eksport CSV</button>
+        <button class="btn-main" style="font-size: 0.95rem; padding: 12px 24px; background: var(--primary);" onclick="clearAllData()">🗑️ Padam Rekod</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LAPORAN INDIVIDU -->
+  <div class="modal-overlay" id="modal-report">
+    <div class="modal-content">
+      <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="margin: 0;">📋 Laporan Individual Murid</h2>
+        <button onclick="closeModal('modal-report')" style="background:none; border:none; font-size:1.6rem; cursor:pointer;">❌</button>
+      </div>
+
+      <div id="report-details-content"></div>
+
+      <div class="no-print" style="margin-top: 20px; text-align: right;">
+        <button class="btn-main btn-green" style="font-size: 0.95rem; padding: 12px 24px;" onclick="window.print()">🖨️ Cetak Laporan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStudent = { name: '', class: '', date: '' };
+    let currentQuestionIdx = 0;
+    let gemCount = 0;
+    let currentQuestionAttempts = 1;
+    let lastSpokenText = '';
+
+    // 10 Perkataan KV+KV Rasmi Pilihan Cikgu (Guli ditukar kepada Lima)
+    const questions = [
+      { word: "baju", given: "ba", target: "ju", emoji: "👕", full: "BAJU" },
+      { word: "bola", given: "bo", target: "la", emoji: "⚽", full: "BOLA" },
+      { word: "paku", given: "pa", target: "ku", emoji: "📌", full: "PAKU" },
+      { word: "yoyo", given: "yo", target: "yo", emoji: "🪀", full: "YOYO" },
+      { word: "susu", given: "su", target: "su", emoji: "🥛", full: "SUSU" },
+      { word: "lima", given: "li", target: "ma", emoji: "🖐️", full: "LIMA" },
+      { word: "lori", given: "lo", target: "ri", emoji: "🚚", full: "LORI" },
+      { word: "gigi", given: "gi", target: "gi", emoji: "🦷", full: "GIGI" },
+      { word: "hoki", given: "ho", target: "ki", emoji: "🏒", full: "HOKI" },
+      { word: "gula", given: "gu", target: "la", emoji: "🍬", full: "GULA" }
+    ];
+
+    let sessionResults = [];
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let currentAudioBlob = null;
+    let currentAudioUrl = null;
+    let speechRecognition = null;
+    let lastRecognizedSpeech = '';
+
+    window.onload = function() {
+      const today = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      document.getElementById('session-date').value = today;
+      initSpeechRecognition();
+
+      setTimeout(() => {
+        speakText("Selamat datang ke aplikasi Jom Baca Suku Kata K V K V. Sila masukkan nama dan kelas anda.");
+      }, 800);
+    };
+
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        lastSpokenText = text;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ms-MY';
+        utterance.rate = 0.85;
+        utterance.pitch = 1.1;
+
+        const voices = window.speechSynthesis.getVoices();
+        const malayVoice = voices.find(v => v.lang.includes('ms') || v.lang.includes('Malay'));
+        if (malayVoice) {
+          utterance.voice = malayVoice;
+        }
+
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function repeatInstruction() {
+      if (lastSpokenText) {
+        speakText(lastSpokenText);
+      }
+    }
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playAudioMelodicFallback(freqList) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      freqList.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime + (idx * 0.12);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+        osc.start(now);
+        osc.stop(now + 0.2);
+      });
+    }
+
+    function playSoundEffect(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (type === 'magic') {
+        playAudioMelodicFallback([400, 550, 700, 880]);
+      } else if (type === 'coin') {
+        playAudioMelodicFallback([987, 1318]);
+      } else if (type === 'click') {
+        playAudioMelodicFallback([350]);
+      } else if (type === 'wrong') {
+        playAudioMelodicFallback([220, 150]);
+      }
+    }
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        speechRecognition = new SpeechRecognition();
+        speechRecognition.lang = 'ms-MY';
+        speechRecognition.continuous = true;
+        speechRecognition.interimResults = true;
+
+        speechRecognition.onresult = function(event) {
+          let finalTranscript = '';
+          for (let i = 0; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript + ' ';
+            }
+          }
+          
+          lastRecognizedSpeech = finalTranscript.toLowerCase().trim();
+          const micContainer = document.getElementById('mic-status-container');
+          if (lastRecognizedSpeech.length > 0) {
+            micContainer.innerHTML = `<div class="recording-dot"></div> <span style="color: #ff4757;">Transkripsi Live (Tulen): <b>"${lastRecognizedSpeech}"</b></span>`;
+          } else {
+            micContainer.innerHTML = `<div class="recording-dot"></div> <span style="color: #ff4757;">Sedang merakam... Mendengar sebutan murid...</span>`;
+          }
+        };
+      }
+    }
+
+    async function toggleRecording() {
+      playSoundEffect('click');
+      const micContainer = document.getElementById('mic-status-container');
+      const recLabel = document.getElementById('record-label');
+
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        if (speechRecognition) try { speechRecognition.stop(); } catch(e){}
+        recLabel.innerText = "Rakam Suara";
+        
+        const textDisplay = lastRecognizedSpeech.length > 0 ? `"${lastRecognizedSpeech}"` : "(Tiada sebutan dikesan)";
+        micContainer.innerHTML = `<span style="color: #2ed573;">✅ Rakaman selesai! Transkripsi: ${textDisplay}</span>`;
+      } else {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          audioChunks = [];
+          mediaRecorder = new MediaRecorder(stream);
+
+          mediaRecorder.ondataavailable = event => { audioChunks.push(event.data); };
+
+          mediaRecorder.onstop = () => {
+            currentAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            currentAudioUrl = URL.createObjectURL(currentAudioBlob);
+            
+            document.getElementById('btn-play-rec').style.opacity = '1';
+            document.getElementById('btn-play-rec').style.pointerEvents = 'auto';
+            document.getElementById('btn-check').style.opacity = '1';
+            document.getElementById('btn-check').style.pointerEvents = 'auto';
+          };
+
+          mediaRecorder.start();
+          lastRecognizedSpeech = '';
+          if (speechRecognition) {
+            try { speechRecognition.start(); } catch(e){}
+          }
+
+          recLabel.innerText = "Hentikan";
+          micContainer.innerHTML = '<div class="recording-dot"></div> <span style="color: #ff4757;">Sedang merakam... Sila sebut suku kata tempat kosong!</span>';
+
+          setTimeout(() => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+              toggleRecording();
+            }
+          }, 5000);
+
+        } catch (err) {
+          alert("Sila benarkan akses mikrofon pada peranti anda.");
+        }
+      }
+    }
+
+    function playStudentAudio() {
+      if (currentAudioUrl) {
+        playSoundEffect('click');
+        const audio = new Audio(currentAudioUrl);
+        audio.play();
+      }
+    }
+
+    function startAdventure() {
+      playSoundEffect('magic');
+      const name = document.getElementById('student-name').value.trim();
+      const sClass = document.getElementById('student-class').value.trim();
+      const date = document.getElementById('session-date').value.trim();
+
+      if (!name || !sClass) {
+        alert("Sila masukkan Nama Murid dan Kelas terlebih dahulu!");
+        speakText("Sila masukkan nama dan kelas anda dahulu.");
+        return;
+      }
+
+      currentStudent = { name: name, class: sClass, date: date };
+      document.getElementById('player-tag').innerText = `👤 ${currentStudent.name} (${currentStudent.class})`;
+      
+      switchScreen('screen-game');
+      currentQuestionIdx = 0;
+      gemCount = 0;
+      sessionResults = [];
+      document.getElementById('gem-count').innerText = gemCount;
+
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      currentQuestionAttempts = 1;
+      const q = questions[currentQuestionIdx];
+      document.getElementById('image-display').innerText = q.emoji;
+      document.getElementById('word-pattern').innerHTML = `<span class="syllable-given">${q.given}</span> + <span class="syllable-blank">_ _</span>`;
+      
+      const totalProgress = (currentQuestionIdx / questions.length) * 100;
+      document.getElementById('game-progress').style.width = totalProgress + '%';
+
+      document.getElementById('question-count-tag').innerText = `Soalan ${currentQuestionIdx + 1} daripada ${questions.length}`;
+      document.getElementById('attempt-badge').innerText = `Percubaan Ke-${currentQuestionAttempts} untuk soalan ini`;
+
+      document.getElementById('feedback-banner').style.display = 'none';
+      document.getElementById('btn-play-rec').style.opacity = '0.5';
+      document.getElementById('btn-play-rec').style.pointerEvents = 'none';
+      document.getElementById('btn-check').style.opacity = '0.5';
+      document.getElementById('btn-check').style.pointerEvents = 'none';
+      document.getElementById('btn-retry').style.display = 'none';
+      document.getElementById('btn-next').style.display = 'none';
+      document.getElementById('mic-status-container').innerHTML = '<span>Tekan <b>Rakam Suara</b> untuk sebut suku kata tempat kosong.</span>';
+      
+      currentAudioBlob = null;
+      currentAudioUrl = null;
+      lastRecognizedSpeech = '';
+
+      const instructionString = "Lihat gambar di bawah. Sila sebut suku kata yang betul untuk melengkapkan perkataan.";
+      document.getElementById('instruction-text').innerText = instructionString;
+      
+      setTimeout(() => {
+        speakText(instructionString);
+      }, 500);
+    }
+
+    function retryCurrentQuestion() {
+      playSoundEffect('click');
+      currentQuestionAttempts++;
+      document.getElementById('attempt-badge').innerText = `Percubaan Ke-${currentQuestionAttempts} untuk merakam semula`;
+
+      document.getElementById('feedback-banner').style.display = 'none';
+      document.getElementById('btn-retry').style.display = 'none';
+      document.getElementById('btn-play-rec').style.opacity = '0.5';
+      document.getElementById('btn-play-rec').style.pointerEvents = 'none';
+      document.getElementById('btn-check').style.opacity = '0.5';
+      document.getElementById('btn-check').style.pointerEvents = 'none';
+      document.getElementById('mic-status-container').innerHTML = '<span>Tekan <b>Rakam Suara</b> untuk sebut semula.</span>';
+
+      currentAudioBlob = null;
+      currentAudioUrl = null;
+      lastRecognizedSpeech = '';
+    }
+
+    function evaluateAnswer() {
+      playSoundEffect('click');
+      const q = questions[currentQuestionIdx];
+      const target = q.target.toLowerCase();
+      const feedback = document.getElementById('feedback-banner');
+      
+      let isCorrect = false;
+
+      if (lastRecognizedSpeech && lastRecognizedSpeech.length > 0) {
+        const tokens = lastRecognizedSpeech.toLowerCase().trim().split(/\s+/);
+        isCorrect = tokens.length > 0 && tokens.every(token => token === target);
+      }
+
+      if (isCorrect) {
+        playSoundEffect('coin');
+        feedback.className = 'feedback-banner feedback-correct';
+        feedback.innerHTML = `🌟 TAHNIAH! JAWAPAN KAMU BETUL! ⭐ +1 Bintang!`;
+        feedback.style.display = 'block';
+
+        document.getElementById('word-pattern').innerHTML = `<span class="syllable-given">${q.given}</span> + <span style="color:var(--secondary); font-weight:900;">${q.target}</span>`;
+
+        gemCount++;
+        document.getElementById('gem-count').innerText = gemCount;
+        
+        sessionResults.push({ word: q.full, target: q.target, status: 'Betul', attempts: currentQuestionAttempts });
+
+        document.getElementById('btn-retry').style.display = 'none';
+        document.getElementById('btn-next').style.display = 'flex';
+        
+        speakText("Tahniah! Jawapan kamu betul.");
+      } else {
+        playSoundEffect('wrong');
+        feedback.className = 'feedback-banner feedback-wrong';
+        feedback.innerHTML = `❌ JAWAPAN SALAH / TIDAK TEPAT! Tekan 'Cuba Lagi' untuk merakam semula.`;
+        feedback.style.display = 'block';
+
+        document.getElementById('btn-retry').style.display = 'flex';
+        document.getElementById('btn-next').style.display = 'none';
+        
+        speakText("Belum tepat. Sila cuba lagi.");
+      }
+    }
+
+    function nextQuestion() {
+      playSoundEffect('click');
+      currentQuestionIdx++;
+
+      if (currentQuestionIdx >= questions.length) {
+        finishGame();
+      } else {
+        loadQuestion();
+      }
+    }
+
+    function finishGame() {
+      playSoundEffect('magic');
+      saveAssessmentRecord();
+      switchScreen('screen-result');
+
+      let totalBetul = sessionResults.filter(r => r.status === 'Betul').length;
+      let percent = (totalBetul / questions.length) * 100;
+
+      document.getElementById('res-total').innerText = `${totalBetul}/${questions.length}`;
+      document.getElementById('res-percent').innerText = `${percent}%`;
+      document.getElementById('res-gems').innerText = `⭐ ${gemCount}`;
+      document.getElementById('result-greeting').innerText = `Syabas ${currentStudent.name}! Kamu berjaya menjawab ${totalBetul} daripada ${questions.length} soalan suku kata KV+KV!`;
+      
+      speakText(`Tahniah ${currentStudent.name}! Kamu telah berjaya menamatkan semua latihan membaca.`);
+    }
+
+    function restartGame() {
+      switchScreen('screen-welcome');
+      speakText("Sila masukkan nama dan kelas anda untuk mula semula.");
+    }
+
+    function saveAssessmentRecord() {
+      let history = JSON.parse(localStorage.getItem('kv_kv_history_github') || '[]');
+      
+      let totalBetul = sessionResults.filter(r => r.status === 'Betul').length;
+      let percent = (totalBetul / questions.length) * 100;
+
+      let record = {
+        id: Date.now(),
+        student: currentStudent,
+        results: sessionResults,
+        totalScore: totalBetul,
+        percent: percent,
+        gems: gemCount,
+        timestamp: currentStudent.date
+      };
+
+      history.push(record);
+      localStorage.setItem('kv_kv_history_github', JSON.stringify(history));
+    }
+
+    function showTeacherDashboard() {
+      renderTeacherTable();
+      document.getElementById('modal-dashboard').style.display = 'flex';
+    }
+
+    function renderTeacherTable() {
+      const history = JSON.parse(localStorage.getItem('kv_kv_history_github') || '[]');
+      const tbody = document.getElementById('dash-table-body');
+      const search = document.getElementById('dash-search').value.toLowerCase();
+
+      tbody.innerHTML = '';
+
+      let totalAttempts = history.length;
+      let uniqueStudents = new Set(history.map(h => h.student.name)).size;
+      let totalMastery = 0;
+
+      const filtered = history.filter(h => h.student.name.toLowerCase().includes(search) || h.student.class.toLowerCase().includes(search));
+
+      filtered.forEach((rec) => {
+        let percent = rec.percent;
+        totalMastery += percent;
+
+        let badgeClass = 'badge-danger';
+        let levelText = 'Belum Menguasai';
+        if (percent >= 80) { badgeClass = 'badge-success'; levelText = 'Menguasai'; }
+        else if (percent >= 60) { badgeClass = 'badge-warning'; levelText = 'Sedang Menguasai'; }
+
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><b>${rec.student.name}</b></td>
+          <td>${rec.student.class}</td>
+          <td>${rec.timestamp}</td>
+          <td><b>${rec.totalScore}/10</b></td>
+          <td><b>${percent}%</b></td>
+          <td><span class="badge ${badgeClass}">${levelText}</span></td>
+          <td>
+            <button onclick="viewReport(${rec.id})" style="background:#70a1ff; color:white; border:none; padding:5px 10px; border-radius:8px; cursor:pointer;">📄 Laporan</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('dash-total-students').innerText = uniqueStudents;
+      document.getElementById('dash-total-attempts').innerText = totalAttempts;
+      document.getElementById('dash-avg-mastery').innerText = totalAttempts > 0 ? Math.round(totalMastery / totalAttempts) + '%' : '0%';
+    }
+
+    function viewReport(id) {
+      const history = JSON.parse(localStorage.getItem('kv_kv_history_github') || '[]');
+      const rec = history.find(h => h.id === id);
+      if (!rec) return;
+
+      let percent = rec.percent;
+      let intervention = percent >= 80 
+        ? "<b>Aktiviti Pengayaan:</b> Murid menguasai kemahiran membaca perkataan KV+KV dengan cemerlang. Boleh diteruskan ke kemahiran perkataan KVK."
+        : (percent >= 60 ? "<b>Aktiviti Pengukuhan:</b> Latihan mengeja dan membunyikan suku kata yang belum tepat menggunakan kad imbasan berwarna." : "<b>Aktiviti Intervensi Khusus:</b> Bimbingan peribadi (1-to-1) membunyikan cantuman konsonan dan vokal.");
+
+      let listHtml = "";
+      if (Array.isArray(rec.results)) {
+        rec.results.forEach(res => {
+          listHtml += `<li>Perkataan ${res.word} (Suku kata tempat kosong): <b>${res.status}</b> [Percubaan: ${res.attempts}x]</li>`;
+        });
+      }
+
+      const reportHtml = `
+        <div style="border-bottom: 3px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
+          <h2 style="margin:0; color:var(--primary);">PENTAKSIRAN BAHASA MELAYU PEMULIHAN KHAS</h2>
+          <h4 style="margin:5px 0 0 0;">Laporan Individual Membaca Perkataan KV+KV (10 Soalan)</h4>
+        </div>
+
+        <p><b>Nama Murid:</b> ${rec.student.name}</p>
+        <p><b>Kelas:</b> ${rec.student.class}</p>
+        <p><b>Tarikh Pentaksiran:</b> ${rec.timestamp}</p>
+
+        <hr>
+
+        <h4>📈 Ringkasan Perincian Soalan & Percubaan:</h4>
+        <ul>${listHtml}</ul>
+        <p>Jumlah Skor Betul: <b>${rec.totalScore} / 10 (${percent}%)</b></p>
+        <p>Jumlah Bintang Dikumpul: <b>⭐ ${rec.gems}</b></p>
+
+        <h4>💡 Cadangan Intervensi Guru:</h4>
+        <div style="background:#f1f3f5; padding:15px; border-radius:12px; font-size:0.95rem;">
+          ${intervention}
+        </div>
+      `;
+
+      document.getElementById('report-details-content').innerHTML = reportHtml;
+      document.getElementById('modal-report').style.display = 'flex';
+    }
+
+    function exportDataCSV() {
+      const history = JSON.parse(localStorage.getItem('kv_kv_history_github') || '[]');
+      if (history.length === 0) { alert("Tiada rekod untuk dieksport."); return; }
+
+      let csv = "Nama,Kelas,Tarikh,Skor Total,Peratus\n";
+      history.forEach(r => {
+        csv += `"${r.student.name}","${r.student.class}","${r.timestamp}",${r.totalScore}/10,${r.percent}%\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', `Rekod_Membaca_KVKV_10Soalan_${Date.now()}.csv`);
+      a.click();
+    }
+
+    function clearAllData() {
+      if (confirm("Adakah anda pasti untuk memadam SEMUA rekod pentaksiran murid?")) {
+        localStorage.removeItem('kv_kv_history_github');
+        renderTeacherTable();
+      }
+    }
+
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+  </script>
+</body>
+</html>
